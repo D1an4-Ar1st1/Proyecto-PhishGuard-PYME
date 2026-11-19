@@ -6,7 +6,7 @@ Proyecto de grado – Ingeniería de Sistemas, UNAD (ECBTI).
 > Todos los datos son ficticios. Las simulaciones no capturan contraseñas ni datos reales.
 
 ## Acceso rápido
-- **URL de pruebas:** https://claude.ai/artifact/LCHRWsnGtpz91UXjGxwqhY
+- **URL de pruebas:** https://unadvirtualedu-my.sharepoint.com/:u:/g/personal/dmaristizabalv_unadvirtual_edu_co/IQDbtF3m_AQVQqCZ565iWdF6Ad7a2nVrSt_TkoKn92L9dxM?e=G064F3 
 - **Ejecución local:** abrir `prototipo/index.html` en un navegador moderno (sin instalación).
 
 ## Cuentas de demostración
