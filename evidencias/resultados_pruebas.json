@@ -1,0 +1,210 @@
+{
+  "fecha": "2026-11-10T02:57:51.810Z",
+  "total": 29,
+  "aprobados": 29,
+  "casos": [
+    {
+      "id": "CP-01",
+      "desc": "Inicio de sesión con credenciales inválidas",
+      "esperado": "Mensaje de error y sin acceso",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-02",
+      "desc": "Inicio de sesión con campos vacíos",
+      "esperado": "Validación de campos obligatorios",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-03",
+      "desc": "Consentimiento obligatorio del participante",
+      "esperado": "No avanza sin aceptar; avanza al aceptar",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-04",
+      "desc": "Panel de inicio del participante",
+      "esperado": "Muestra ruta de aprendizaje y progreso en cero",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-05",
+      "desc": "Evaluación final bloqueada sin requisitos",
+      "esperado": "Botón deshabilitado",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-06",
+      "desc": "Evaluación diagnóstica exige responder todo",
+      "esperado": "Mensaje de validación",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-07",
+      "desc": "Registro de evaluación diagnóstica",
+      "esperado": "Puntaje 2/4 almacenado y visible",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-08",
+      "desc": "Módulos de capacitación completos",
+      "esperado": "Tres módulos completados (3/3)",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-09",
+      "desc": "Simulación: reportar phishing",
+      "esperado": "Retroalimentación positiva y señales de alerta",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-10",
+      "desc": "Simulación: clic en enlace de phishing",
+      "esperado": "Alerta de riesgo y aviso de simulación sin captura de datos",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-11",
+      "desc": "Simulación: falso positivo en mensaje legítimo",
+      "esperado": "Se informa que el mensaje era legítimo",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-12",
+      "desc": "Una sola decisión por mensaje",
+      "esperado": "Botones deshabilitados tras resolver",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-13",
+      "desc": "Simulación: ignorar phishing",
+      "esperado": "Retroalimentación indica que faltó reportar",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-14",
+      "desc": "Evaluación final habilitada y registrada",
+      "esperado": "Puntaje final 4/4 y habilitación tras requisitos",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-15",
+      "desc": "Resultados personales",
+      "esperado": "Antes→después 2 → 4, 1 reporte y 1 clic",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-16",
+      "desc": "Persistencia de datos al recargar",
+      "esperado": "Los resultados se conservan",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-17",
+      "desc": "Supervisor: indicadores por empresa",
+      "esperado": "Muestra tasa de clics, reporte y recomendaciones",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-18",
+      "desc": "Supervisor: participantes seudonimizados",
+      "esperado": "Tabla con identificadores P-xx, sin nombres; sin datos de otras empresas",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-19",
+      "desc": "Supervisor: reporte CSV",
+      "esperado": "Muestra CSV con encabezado",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-20",
+      "desc": "Control de acceso por rol",
+      "esperado": "El supervisor no ve opciones de administración",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-21",
+      "desc": "Administrador: validación de nuevo usuario",
+      "esperado": "Rechaza contraseña corta y usuario duplicado",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-22",
+      "desc": "Administrador: creación de usuario",
+      "esperado": "El usuario aparece en la tabla",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-23",
+      "desc": "Administrador: nuevo escenario con validación",
+      "esperado": "Exige campos; crea y lista el escenario",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-24",
+      "desc": "Administrador: activar/desactivar escenario",
+      "esperado": "El estado cambia a Inactivo",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-25",
+      "desc": "Administrador: edición de contenidos",
+      "esperado": "Guarda título modificado",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-26",
+      "desc": "Registro de auditoría",
+      "esperado": "Registra inicios de sesión y cambios",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-27",
+      "desc": "Indicadores globales del administrador",
+      "esperado": "Incluye datos de todas las empresas",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-28",
+      "desc": "Diseño responsivo (375 px)",
+      "esperado": "Sin desbordamiento horizontal en móvil",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-29",
+      "desc": "Datos no sensibles en el registro",
+      "esperado": "Los eventos solo contienen id, acción y tiempo",
+      "obtenido": "Cumple lo esperado",
+      "estado": "Aprobado"
+    }
+  ]
+}

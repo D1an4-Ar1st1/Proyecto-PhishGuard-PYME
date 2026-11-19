@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PhishGuard PYME – Prototipo</title>
+<style>
+:root{--bg:#f4f6fb;--sf:#fff;--tx:#1b2430;--mu:#5b6675;--pr:#1f5fbf;--ok:#0e8f6a;--wa:#c0392b;--am:#b7791f;--bd:#dce2ec;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1520;--sf:#182131;--tx:#e8edf5;--mu:#9aa7ba;--pr:#7ab0ff;--ok:#3ecf9e;--wa:#ff8070;--am:#f0b95a;--bd:#2a3649;color-scheme:dark}}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--sf);border-bottom:1px solid var(--bd);padding:10px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.brand{font-weight:700;color:var(--pr)}.who{color:var(--mu);font-size:13px}
+nav{display:flex;gap:4px;flex-wrap:wrap;padding:8px 16px;background:var(--sf);border-bottom:1px solid var(--bd)}
+nav button{background:none;border:0;padding:8px 12px;border-radius:8px;color:var(--mu);cursor:pointer;font:inherit}
+nav button.on{background:var(--pr);color:#fff}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.kpi{font-size:28px;font-weight:700}.mu{color:var(--mu)}h1{font-size:20px;margin:0 0 10px}h2{font-size:16px;margin:0 0 8px}
+button.b,a.b{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font:inherit;text-decoration:none;display:inline-block}
+button.s{background:var(--sf);color:var(--tx);border:1px solid var(--bd)}button.w{background:var(--wa)}button.g{background:var(--ok)}button:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;margin:4px 0 10px}
+label{font-size:13px;color:var(--mu)}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd)}
+.tbl{overflow-x:auto}.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:var(--bd)}
+.tag.ok{background:var(--ok);color:#fff}.tag.wa{background:var(--wa);color:#fff}.tag.am{background:var(--am);color:#fff}
+.err{color:var(--wa);font-size:13px;min-height:18px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inbox{display:grid;grid-template-columns:260px 1fr;gap:12px}@media(max-width:700px){.inbox{grid-template-columns:1fr}}
+.msg{padding:10px;border:1px solid var(--bd);border-radius:8px;margin-bottom:8px;cursor:pointer;background:var(--bg)}.msg.on{border-color:var(--pr)}
+.mail{border:1px dashed var(--bd);border-radius:8px;padding:12px;background:var(--bg)}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.fb{border-left:4px solid var(--am);padding:8px 12px;margin-top:10px;background:var(--bg);border-radius:6px}.fb.ok{border-color:var(--ok)}.fb.wa{border-color:var(--wa)}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:8px;display:none}
+.login{max-width:380px;margin:40px auto}small{color:var(--mu)}
+</style></head><body>
+<div id="app"></div><div id="toast" role="status"></div>
+<script>
+(function(){
+'use strict';
+const KEY='phishguard_trl5_v1',$=s=>document.querySelector(s),
+e=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- Capa de datos simulada (API REST simulada sobre localStorage) ---------- */
+const seed=()=>({
+ users:[
+  {id:1,name:'Administrador Demo',user:'admin',pass:'Admin2026*',role:'administrador',company:'PhishGuard'},
+  {id:2,name:'Supervisora Demo',user:'supervisor',pass:'Super2026*',role:'supervisor',company:'Textiles Andina S.A.S.'},
+  {id:3,name:'Ana Participante',user:'ana',pass:'Ana2026*',role:'participante',company:'Textiles Andina S.A.S.'},
+  {id:4,name:'Luis Participante',user:'luis',pass:'Luis2026*',role:'participante',company:'Textiles Andina S.A.S.'},
+  {id:5,name:'Marta Participante',user:'marta',pass:'Marta2026*',role:'participante',company:'Ferretería El Roble'}],
+ consent:{},progress:{},tests:[],events:[],audit:[],
+ modules:[
+  {id:1,t:'¿Qué es el phishing y cómo funciona?',L:['El phishing es un engaño digital: alguien se hace pasar por una entidad o persona de confianza para que usted entregue datos, abra un archivo o haga clic en un enlace.','Funciona por correo, mensajes de texto, llamadas, redes sociales y sitios falsos. Apunta a las emociones: urgencia, miedo, curiosidad o autoridad.'],q:{q:'¿Qué busca principalmente un mensaje de phishing?',o:['Dañar el computador físicamente','Que usted actúe sin pensar y entregue información','Actualizar su antivirus'],a:1}},
+  {id:2,t:'Señales de alerta en correos, enlaces y mensajes',L:['Revise el remitente y el dominio completo: los atacantes cambian letras (por ejemplo, un cero en lugar de una o).','Desconfíe de la urgencia, las amenazas, los saludos genéricos, los adjuntos inesperados y los enlaces que no coinciden con el sitio oficial.'],q:{q:'¿Cuál es una señal de alerta?',o:['Remitente con dominio extraño y tono de urgencia','Mensaje de un compañero que usted esperaba','Correo sin enlaces ni adjuntos'],a:0}},
+  {id:3,t:'Qué hacer ante un mensaje sospechoso',L:['No haga clic ni descargue nada. Ingrese al servicio por el canal oficial y reporte el mensaje a la persona responsable.','Use contraseñas distintas y active la autenticación multifactor: protege su cuenta aunque se roben la contraseña.'],q:{q:'Recibe un aviso de «su cuenta será bloqueada» con un enlace. ¿Qué hace?',o:['Hace clic para resolverlo rápido','No hace clic y lo reporta','Lo reenvía a sus compañeros'],a:1}}],
+ scenarios:[
+  {id:1,on:true,ph:true,from:'soporte@banc0-andino-seguridad.co',subj:'Acción requerida: su cuenta será bloqueada en 24 horas',body:'Estimado cliente: detectamos actividad inusual. Para evitar el bloqueo, confirme sus datos ahora.',link:'Verificar mi cuenta',sig:['El dominio usa un cero en lugar de la letra o','Genera urgencia y amenaza con bloqueo','Saludo genérico: no usa su nombre','Pide confirmar datos mediante un enlace']},
+  {id:2,on:true,ph:true,from:'facturacion@proveedor-envios.net',subj:'Factura vencida N.º 20491 (archivo adjunto)',body:'Adjuntamos la factura pendiente. Si no cancela hoy, suspenderemos el servicio.',link:'Descargar factura.pdf',sig:['Adjunto que usted no esperaba','Dominio genérico, no es el de su proveedor','Presión de pago inmediato']},
+  {id:3,on:true,ph:true,from:'gerencia@empresa-correo.com',subj:'Transferencia urgente y confidencial',body:'Necesito que realice una transferencia hoy mismo y no lo comente con nadie. Le envío los datos aquí.',link:'Ver datos de la transferencia',sig:['Solicitud inusual de dinero','Pide confidencialidad y rapidez','Canal y dominio no habituales de la gerencia']},
+  {id:4,on:true,ph:false,from:'rrhh@su-empresa.com',subj:'Recordatorio: reunión de equipo el jueves',body:'Hola equipo: recuerden la reunión del jueves a las 9:00 a. m. en la sala principal.',link:'Ver agenda',sig:['Mensaje esperado, del dominio interno y sin presión']}],
+ test:[
+  {q:'¿Qué es el phishing?',o:['Un virus que daña el hardware','Un engaño para que entregue información o haga clic en enlaces falsos','Un tipo de firewall'],a:1},
+  {q:'¿Cuál es una señal de alerta en un correo sospechoso?',o:['Remitente con dominio distinto al oficial y tono de urgencia','Un saludo con su nombre','Un mensaje sin enlaces'],a:0},
+  {q:'Un correo del «banco» le pide actualizar su clave con un enlace. ¿Qué debe hacer?',o:['Hacer clic y actualizarla','Reenviarlo a los compañeros','No hacer clic, entrar por el canal oficial y reportarlo'],a:2},
+  {q:'¿Qué medida protege una cuenta aunque se roben la contraseña?',o:['Una contraseña corta','La autenticación multifactor','Guardarla en una nota'],a:1}]});
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(x){}S=S||seed();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(x){}},
+ wait=()=>new Promise(r=>setTimeout(r,60)),
+ log=(u,a)=>{S.audit.unshift({ts:new Date().toISOString().slice(0,19).replace('T',' '),u:u?u.user:'-',a});S.audit=S.audit.slice(0,80)};
+const api={
+ async login(u,p){await wait();const x=S.users.find(v=>v.user===u&&v.pass===p);log(x,x?'Inicio de sesión':'Intento fallido ('+u+')');save();return x||null},
+ async consent(id){await wait();S.consent[id]=true;log(me,'Consentimiento informado aceptado');save()},
+ async addUser(d){await wait();if(S.users.some(v=>v.user===d.user))throw Error('El usuario ya existe');d.id=Math.max(...S.users.map(v=>v.id))+1;S.users.push(d);log(me,'Usuario creado: '+d.user);save()},
+ async test(id,type,score){await wait();S.tests=S.tests.filter(t=>!(t.uid===id&&t.type===type));S.tests.push({uid:id,type,score});log(me,'Evaluación '+type+': '+score+'/4');save()},
+ async mod(id,mid,score){await wait();(S.progress[id]=S.progress[id]||{})[mid]=score;log(me,'Módulo '+mid+' completado');save()},
+ async decide(id,sid,action,ms){await wait();S.events=S.events.filter(v=>!(v.uid===id&&v.sid===sid));S.events.push({uid:id,sid,action,ms,ts:Date.now()});log(me,'Simulación '+sid+': '+action);save()},
+ async saveMod(m){await wait();log(me,'Contenido editado: módulo '+m.id);save()},
+ async addSc(d){await wait();d.id=Math.max(...S.scenarios.map(v=>v.id))+1;S.scenarios.push(d);log(me,'Escenario creado: '+d.id);save()},
+ async reset(){await wait();S=seed();save()}};
+/* ---------- Estado de interfaz ---------- */
+let me=null,route='login',sub=null,sel=null,t0=0,fb=null,modal=null;
+const NAV={participante:[['inicio','Inicio'],['capacitacion','Capacitación'],['evaluacion','Evaluaciones'],['simulacion','Simulaciones'],['resultados','Mis resultados']],
+ supervisor:[['indicadores','Indicadores'],['participantes','Participantes']],
+ administrador:[['indicadores','Indicadores'],['usuarios','Usuarios'],['escenarios','Escenarios'],['contenidos','Contenidos'],['auditoria','Auditoría']]};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2600)};
+const myTest=(t,id=me.id)=>S.tests.find(v=>v.uid===id&&v.type===t),
+ done=(id=me.id)=>Object.keys(S.progress[id]||{}).length,
+ decs=(id=me.id)=>S.events.filter(v=>v.uid===id),
+ act=()=>S.scenarios.filter(s=>s.on),
+ pct=(a,b)=>b?Math.round(100*a/b):0;
+function stats(users){
+ const ids=users.map(u=>u.id),ev=S.events.filter(v=>ids.includes(v.uid)&&S.scenarios.find(s=>s.id===v.sid&&s.ph)),
+  cl=ev.filter(v=>v.action==='clic').length,rp=ev.filter(v=>v.action==='reportar').length,
+  avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null,
+  pre=avg(S.tests.filter(t=>ids.includes(t.uid)&&t.type==='pre').map(t=>t.score)),post=avg(S.tests.filter(t=>ids.includes(t.uid)&&t.type==='post').map(t=>t.score)),
+  ms=avg(ev.map(v=>v.ms/1000));
+ return{n:ev.length,cl,rp,clR:pct(cl,ev.length),rpR:pct(rp,ev.length),pre,post,ms}}
+const f1=v=>v===null?'—':v.toFixed(1);
+/* ---------- Vistas ---------- */
+function vLogin(){return`<div class="card login"><h1>PhishGuard PYME</h1><p class="mu">Plataforma de capacitación, simulación controlada y monitoreo.</p>
+<label for="u">Usuario</label><input id="u" autocomplete="username"><label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password">
+<div class="err" id="err" role="alert"></div><button class="b" data-a="login" style="width:100%">Ingresar</button>
+<details style="margin-top:12px"><summary class="mu">Cuentas de demostración</summary><small>admin / Admin2026* · supervisor / Super2026* · ana / Ana2026* · luis / Luis2026* · marta / Marta2026*</small></details></div>`}
+function vConsent(){return`<div class="card"><h1>Consentimiento informado</h1><p>Este ejercicio es una <b>simulación educativa</b>. Se usan datos ficticios, no se capturan contraseñas reales y solo se registran eventos no sensibles (tipo de acción y tiempo de respuesta). Sus resultados se muestran de forma agregada al supervisor, conforme a la Ley 1581 de 2012.</p>
+<label><input type="checkbox" id="ck" style="width:auto"> Acepto participar de forma voluntaria.</label><div class="err" id="err"></div><button class="b" data-a="consent">Continuar</button></div>`}
+function vInicio(){const pre=myTest('pre'),post=myTest('post'),d=done(),ds=decs().length,n=act().length;
+ const st=(ok,t)=>`<li>${ok?'<span class="tag ok">Listo</span>':'<span class="tag">Pendiente</span>'} ${t}</li>`;
+ return`<h1>Hola, ${e(me.name)}</h1><div class="grid"><div class="card"><div class="mu">Módulos</div><div class="kpi">${d}/${S.modules.length}</div><div class="bar"><i style="width:${pct(d,S.modules.length)}%"></i></div></div>
+<div class="card"><div class="mu">Simulaciones resueltas</div><div class="kpi">${ds}/${n}</div><div class="bar"><i style="width:${pct(ds,n)}%"></i></div></div>
+<div class="card"><div class="mu">Evaluación diagnóstica</div><div class="kpi">${pre?pre.score+'/4':'—'}</div></div><div class="card"><div class="mu">Evaluación final</div><div class="kpi">${post?post.score+'/4':'—'}</div></div></div>
+<div class="card"><h2>Su ruta de aprendizaje</h2><ul style="list-style:none;padding:0;line-height:2">${st(pre,'1. Evaluación diagnóstica')}${st(d===S.modules.length,'2. Módulos de capacitación')}${st(ds>=n,'3. Simulaciones controladas')}${st(post,'4. Evaluación final')}</ul>
+<button class="b" data-a="nav" data-r="${!pre?'evaluacion':d<S.modules.length?'capacitacion':ds<n?'simulacion':'evaluacion'}">Continuar</button></div>`}
+function vCap(){
+ if(sub){const m=S.modules.find(v=>v.id===sub),dn=(S.progress[me.id]||{})[m.id]!==undefined;
+  return`<div class="card"><h1>${e(m.t)}</h1>${m.L.map(p=>`<p>${e(p)}</p>`).join('')}<h2>Compruebe lo aprendido</h2><p>${e(m.q.q)}</p>
+${m.q.o.map((o,i)=>`<div><label><input type="radio" name="mq" value="${i}" style="width:auto"> ${e(o)}</label></div>`).join('')}<div id="err" class="err"></div>
+${fb&&fb.mod?`<div class="fb ${fb.ok?'ok':'wa'}">${e(fb.t)}</div>`:''}<div class="row" style="margin-top:10px"><button class="b" data-a="ansmod" data-id="${m.id}">${dn?'Responder de nuevo':'Responder y completar'}</button><button class="b s" data-a="nav" data-r="capacitacion" data-clear="1">Volver</button></div></div>`}
+ return`<h1>Módulos de capacitación</h1>${S.modules.map(m=>{const dn=(S.progress[me.id]||{})[m.id]!==undefined;return`<div class="card row" style="justify-content:space-between"><div><h2>${e(m.t)}</h2><span class="tag ${dn?'ok':''}">${dn?'Completado':'Pendiente'}</span></div><button class="b" data-a="openmod" data-id="${m.id}">${dn?'Repasar':'Iniciar'}</button></div>`}).join('')}`}
+function vEval(){
+ if(sub){return`<div class="card"><h1>Evaluación ${sub==='pre'?'diagnóstica':'final'}</h1>${S.test.map((q,i)=>`<p><b>${i+1}. ${e(q.q)}</b></p>${q.o.map((o,j)=>`<div><label><input type="radio" name="q${i}" value="${j}" style="width:auto"> ${e(o)}</label></div>`).join('')}`).join('')}
+<div class="err" id="err" role="alert"></div><div class="row"><button class="b" data-a="submit" data-t="${sub}">Enviar respuestas</button><button class="b s" data-a="nav" data-r="evaluacion" data-clear="1">Cancelar</button></div></div>`}
+ const pre=myTest('pre'),post=myTest('post'),ok=done()===S.modules.length;
+ return`<h1>Evaluaciones</h1><div class="grid"><div class="card"><h2>Diagnóstica (antes)</h2><p class="mu">Mide su punto de partida.</p>${pre?`<div class="kpi">${pre.score}/4</div>`:`<button class="b" data-a="starttest" data-t="pre">Presentar</button>`}</div>
+<div class="card"><h2>Final (después)</h2><p class="mu">${ok&&pre?'Disponible.':'Requiere la diagnóstica y los 3 módulos.'}</p>${post?`<div class="kpi">${post.score}/4</div>`:`<button class="b" data-a="starttest" data-t="post" ${ok&&pre?'':'disabled'}>Presentar</button>`}</div></div>`}
+function vSim(){
+ const L=act(),cur=sub&&L.find(s=>s.id===sub),d=id=>S.events.find(v=>v.uid===me.id&&v.sid===id);
+ let right='<div class="card mu">Seleccione un mensaje de la bandeja. Esta bandeja es simulada: ningún dato sale de la plataforma.</div>';
+ if(cur){const r=d(cur.id);right=`<div class="card"><div class="mail"><b>${e(cur.subj)}</b><br><small>De: ${e(cur.from)}</small><p>${e(cur.body)}</p><a class="b s" href="#simulacion" data-a="act" data-v="clic" style="${r?'pointer-events:none;opacity:.6':''}">${e(cur.link)}</a></div>
+<div class="row" style="margin-top:10px"><button class="b w" data-a="act" data-v="reportar" ${r?'disabled':''}>Reportar como sospechoso</button><button class="b s" data-a="act" data-v="eliminar" ${r?'disabled':''}>Eliminar / ignorar</button></div>
+${r?`<div class="fb ${fb?fb.c:''}"><b>${e(fb?fb.t:'Ya resolvió este mensaje.')}</b><br>${cur.ph?'Señales de alerta:':'Por qué es legítimo:'}<ul>${cur.sig.map(x=>`<li>${e(x)}</li>`).join('')}</ul><small>Esto fue una simulación educativa. No se capturó ningún dato.</small></div>`:''}</div>`}
+ return`<h1>Simulaciones controladas</h1><div class="inbox"><div>${L.map(s=>{const r=d(s.id);return`<div class="msg ${sub===s.id?'on':''}" data-a="opensc" data-id="${s.id}"><b>${e(s.subj)}</b><br><small>${e(s.from)}</small><br>${r?'<span class="tag ok">Resuelto</span>':'<span class="tag">Nuevo</span>'}</div>`}).join('')||'<div class="mu">Sin escenarios activos.</div>'}</div><div>${right}</div></div>`}
+function vRes(){const ev=decs(),pre=myTest('pre'),post=myTest('post');
+ return`<h1>Mis resultados</h1><div class="grid"><div class="card"><div class="mu">Antes → después</div><div class="kpi">${pre?pre.score:'—'} → ${post?post.score:'—'}</div></div><div class="card"><div class="mu">Mensajes reportados</div><div class="kpi">${ev.filter(v=>v.action==='reportar').length}</div></div><div class="card"><div class="mu">Clics en enlaces simulados</div><div class="kpi">${ev.filter(v=>v.action==='clic').length}</div></div></div>
+<div class="card tbl"><table><tr><th>Mensaje</th><th>Su acción</th><th>Tiempo (s)</th></tr>${ev.map(v=>`<tr><td>${e(S.scenarios.find(s=>s.id===v.sid).subj)}</td><td>${e(v.action)}</td><td>${(v.ms/1000).toFixed(1)}</td></tr>`).join('')||'<tr><td colspan="3" class="mu">Aún no hay simulaciones resueltas.</td></tr>'}</table></div>`}
+function parts(){return S.users.filter(u=>u.role==='participante'&&(me.role==='administrador'||u.company===me.company))}
+function vInd(){const P=parts(),s=stats(P),rec=[];
+ if(s.n===0)rec.push('Aún no hay datos de simulaciones: asigne y complete los escenarios para obtener indicadores.');
+ else{if(s.clR>30)rec.push('La tasa de clics supera el 30 %: refuerce el módulo 2 (señales de alerta) y repita los escenarios 1 y 2.');if(s.rpR<50)rec.push('Menos de la mitad de los mensajes sospechosos se reporta: refuerce el módulo 3 y promueva el botón de reporte.');if(s.post!==null&&s.pre!==null&&s.post<=s.pre)rec.push('No hay mejora entre la evaluación diagnóstica y la final: revise los contenidos y repita la capacitación.');if(!rec.length)rec.push('Los indicadores son favorables. Mantenga la capacitación periódica y renueve los escenarios.')}
+ return`<h1>Indicadores${me.role==='supervisor'?' – '+e(me.company):' – todas las empresas'}</h1><div class="grid"><div class="card"><div class="mu">Tasa de clics</div><div class="kpi">${s.clR}%</div></div><div class="card"><div class="mu">Tasa de reporte</div><div class="kpi">${s.rpR}%</div></div><div class="card"><div class="mu">Tiempo medio de respuesta</div><div class="kpi">${f1(s.ms)} s</div></div><div class="card"><div class="mu">Puntaje antes → después (de 4)</div><div class="kpi">${f1(s.pre)} → ${f1(s.post)}</div></div></div>
+<div class="card"><h2>Recomendaciones de mejora</h2><ul>${rec.map(r=>`<li>${e(r)}</li>`).join('')}</ul><button class="b s" data-a="csv">Ver reporte CSV</button></div>`}
+function vPart(){const P=parts();return`<h1>Participantes (seudonimizados)</h1><div class="card tbl"><table><tr><th>ID</th><th>Empresa</th><th>Módulos</th><th>Antes</th><th>Después</th><th>Clics</th><th>Reportes</th></tr>${P.map((u,i)=>{const d=decs(u.id),a=S.tests.find(t=>t.uid===u.id&&t.type==='pre'),b=S.tests.find(t=>t.uid===u.id&&t.type==='post');return`<tr><td>P-${String(u.id).padStart(2,'0')}</td><td>${e(u.company)}</td><td>${Object.keys(S.progress[u.id]||{}).length}/3</td><td>${a?a.score:'—'}</td><td>${b?b.score:'—'}</td><td>${d.filter(v=>v.action==='clic').length}</td><td>${d.filter(v=>v.action==='reportar').length}</td></tr>`}).join('')}</table></div>`}
+function vUsers(){return`<h1>Usuarios y empresas</h1><div class="card tbl"><table><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Empresa</th></tr>${S.users.map(u=>`<tr><td>${e(u.name)}</td><td>${e(u.user)}</td><td>${e(u.role)}</td><td>${e(u.company)}</td></tr>`).join('')}</table></div>
+<div class="card"><h2>Crear usuario</h2><label for="nn">Nombre completo</label><input id="nn"><label for="nu">Usuario</label><input id="nu"><label for="np">Contraseña (mínimo 8 caracteres)</label><input id="np" type="password"><label for="nr">Rol</label><select id="nr"><option>participante</option><option>supervisor</option><option>administrador</option></select><label for="nc">Empresa</label><input id="nc"><div class="err" id="err" role="alert"></div><button class="b" data-a="adduser">Crear</button></div>`}
+function vEsc(){return`<h1>Escenarios de simulación</h1><div class="card tbl"><table><tr><th>Asunto</th><th>Tipo</th><th>Estado</th><th></th></tr>${S.scenarios.map(s=>`<tr><td>${e(s.subj)}</td><td>${s.ph?'Phishing':'Legítimo'}</td><td><span class="tag ${s.on?'ok':''}">${s.on?'Activo':'Inactivo'}</span></td><td><button class="b s" data-a="togsc" data-id="${s.id}">${s.on?'Desactivar':'Activar'}</button></td></tr>`).join('')}</table></div>
+<div class="card"><h2>Nuevo escenario (datos ficticios)</h2><label for="sf">Remitente simulado</label><input id="sf"><label for="ss">Asunto</label><input id="ss"><label for="sb">Mensaje</label><textarea id="sb" rows="3"></textarea><label for="sg">Señales de alerta (separadas por punto y coma)</label><input id="sg"><label><input type="checkbox" id="sp" checked style="width:auto"> Es phishing</label><div class="err" id="err" role="alert"></div><button class="b" data-a="addsc">Crear escenario</button></div>`}
+function vCont(){const m=S.modules.find(v=>v.id===(sub||1));return`<h1>Gestión de contenidos</h1><div class="card"><label for="ms">Módulo</label><select id="ms" data-a="selmod">${S.modules.map(v=>`<option value="${v.id}" ${v.id===m.id?'selected':''}>${e(v.t)}</option>`).join('')}</select><label for="mt">Título</label><input id="mt" value="${e(m.t)}"><label for="ml">Contenido (un párrafo por línea)</label><textarea id="ml" rows="6">${e(m.L.join('\n'))}</textarea><div class="err" id="err" role="alert"></div><button class="b" data-a="savemod" data-id="${m.id}">Guardar cambios</button></div>`}
+function vAud(){return`<h1>Registro de auditoría</h1><div class="card tbl"><table><tr><th>Fecha</th><th>Usuario</th><th>Evento</th></tr>${S.audit.map(a=>`<tr><td>${a.ts}</td><td>${e(a.u)}</td><td>${e(a.a)}</td></tr>`).join('')||'<tr><td colspan="3">Sin eventos.</td></tr>'}</table></div><button class="b w" data-a="reset">Restablecer datos de demostración</button>`}
+const V={inicio:vInicio,capacitacion:vCap,evaluacion:vEval,simulacion:vSim,resultados:vRes,indicadores:vInd,participantes:vPart,usuarios:vUsers,escenarios:vEsc,contenidos:vCont,auditoria:vAud};
+function render(){
+ const app=$('#app');
+ if(!me){app.innerHTML=vLogin();return}
+ if(me.role==='participante'&&!S.consent[me.id]){app.innerHTML=`<header><span class="brand">PhishGuard PYME</span><button class="b s" data-a="logout">Salir</button></header><main>${vConsent()}</main>`;return}
+ const nav=NAV[me.role];if(!nav.some(n=>n[0]===route))route=nav[0][0];
+ app.innerHTML=`<header><span class="brand">PhishGuard PYME</span><span class="who">${e(me.name)} · ${e(me.role)}</span><button class="b s" data-a="logout">Salir</button></header>
+<nav aria-label="Principal">${nav.map(n=>`<button class="${n[0]===route?'on':''}" data-a="nav" data-r="${n[0]}" data-clear="1">${n[1]}</button>`).join('')}</nav><main>${V[route]()}</main>`}
+function go(r,clear){route=r;if(clear){sub=null;fb=null}try{history.replaceState(null,'','#'+r)}catch(x){}render();window.scrollTo(0,0)}
+function csv(){const P=parts(),rows=['id,empresa,modulos,antes,despues,clics,reportes'];P.forEach(u=>{const d=decs(u.id),a=S.tests.find(t=>t.uid===u.id&&t.type==='pre'),b=S.tests.find(t=>t.uid===u.id&&t.type==='post');rows.push(['P-'+u.id,u.company,Object.keys(S.progress[u.id]||{}).length,a?a.score:'',b?b.score:'',d.filter(v=>v.action==='clic').length,d.filter(v=>v.action==='reportar').length].join(','))});return rows.join('\n')}
+const err=m=>{const x=$('#err');if(x)x.textContent=m};
+const H={
+ async login(){const u=$('#u').value.trim(),p=$('#p').value;if(!u||!p)return err('Ingrese usuario y contraseña.');const x=await api.login(u,p);if(!x)return err('Credenciales inválidas.');me=x;route=NAV[x.role][0][0];render()},
+ logout(){me=null;route='login';sub=null;fb=null;render()},
+ async consent(){if(!$('#ck').checked)return err('Debe aceptar el consentimiento para continuar.');await api.consent(me.id);toast('Consentimiento registrado');go('inicio',1)},
+ nav(el){go(el.dataset.r,el.dataset.clear)},
+ openmod(el){sub=+el.dataset.id;fb=null;render()},
+ async ansmod(el){const r=document.querySelector('input[name=mq]:checked');if(!r)return err('Seleccione una respuesta.');const m=S.modules.find(v=>v.id===+el.dataset.id),ok=+r.value===m.q.a;await api.mod(me.id,m.id,ok?1:0);fb={mod:1,ok,t:ok?'¡Correcto! Módulo completado.':'No es la respuesta correcta; repase el contenido. El módulo queda registrado como completado.'};render()},
+ starttest(el){sub=el.dataset.t;render()},
+ async submit(el){const ans=S.test.map((q,i)=>document.querySelector(`input[name=q${i}]:checked`));if(ans.some(a=>!a))return err('Responda todas las preguntas.');const sc=ans.filter((a,i)=>+a.value===S.test[i].a).length;await api.test(me.id,el.dataset.t,sc);toast('Puntaje: '+sc+'/4');go('evaluacion',1)},
+ opensc(el){sub=+el.dataset.id;fb=null;t0=Date.now();render()},
+ async act(el,ev){ev.preventDefault();const s=S.scenarios.find(v=>v.id===sub),a=el.dataset.v;if(S.events.some(v=>v.uid===me.id&&v.sid===sub))return;await api.decide(me.id,sub,a,Date.now()-t0);
+  fb=s.ph?(a==='reportar'?{c:'ok',t:'Excelente: reportó un mensaje de phishing.'}:a==='clic'?{c:'wa',t:'Cuidado: hizo clic en un enlace de phishing simulado.'}:{c:'',t:'Lo ignoró, pero faltó reportarlo para proteger a los demás.'}):(a==='reportar'?{c:'',t:'Este mensaje era legítimo (falso positivo). Revise las señales.'}:{c:'ok',t:'Correcto: era un mensaje legítimo.'});render()},
+ async adduser(){const d={name:$('#nn').value.trim(),user:$('#nu').value.trim(),pass:$('#np').value,role:$('#nr').value,company:$('#nc').value.trim()};if(!d.name||!d.user||!d.company)return err('Complete nombre, usuario y empresa.');if(d.pass.length<8)return err('La contraseña debe tener al menos 8 caracteres.');try{await api.addUser(d)}catch(x){return err(x.message)}toast('Usuario creado');render()},
+ togsc(el){const s=S.scenarios.find(v=>v.id===+el.dataset.id);s.on=!s.on;log(me,'Escenario '+s.id+(s.on?' activado':' desactivado'));save();render()},
+ async addsc(){const d={on:true,ph:$('#sp').checked,from:$('#sf').value.trim(),subj:$('#ss').value.trim(),body:$('#sb').value.trim(),link:'Abrir enlace',sig:$('#sg').value.split(';').map(x=>x.trim()).filter(Boolean)};if(!d.from||!d.subj||!d.body||!d.sig.length)return err('Complete remitente, asunto, mensaje y al menos una señal.');await api.addSc(d);toast('Escenario creado');render()},
+ selmod(el){sub=+el.value;render()},
+ async savemod(el){const m=S.modules.find(v=>v.id===+el.dataset.id),t=$('#mt').value.trim(),l=$('#ml').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!t||!l.length)return err('El título y el contenido son obligatorios.');m.t=t;m.L=l;await api.saveMod(m);toast('Contenido guardado');render()},
+ async reset(){if(confirm('¿Restablecer todos los datos de demostración?')){await api.reset();me=null;route='login';render()}},
+ csv(){modal=csv();const m=document.createElement('div');m.className='card';m.innerHTML='<h2>Reporte CSV (seudonimizado)</h2><textarea rows="8" readonly id="csvbox">'+e(modal)+'</textarea>';document.querySelector('main').appendChild(m)}};
+document.addEventListener('click',ev=>{const el=ev.target.closest('[data-a]');if(!el||el.tagName==='SELECT')return;const f=H[el.dataset.a];if(f)f(el,ev)});
+document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset&&el.dataset.a==='selmod')H.selmod(el)});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!me&&(ev.target.id==='u'||ev.target.id==='p'))H.login()});
+render();
+})();
+</script></body></html>
